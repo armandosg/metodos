@@ -68,6 +68,7 @@ public class Taylor {
         x0 = xr;
       //String f = String.format("f0 = %.18f, ff = %.18f, fr = %.18f, xf = %.18f, x0 = %.18f, xr = %.18f", f0, ff, fr, xf, x0, xr);
       System.out.println(String.format("xr = %.18f", xr));
+      System.out.println(String.format("xra = %.18f", xr));
     }
     return xr;
   }
