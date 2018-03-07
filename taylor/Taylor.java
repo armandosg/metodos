@@ -54,22 +54,38 @@ public class Taylor {
     return suma;
   }
 
-  public static double falsaPosicion (double polinomio[], double x0, double xf, double c) {
-    double f0, ff, fr = 0, xr = 0, xra = 0;
-    for (int i = 0; xr != xra || i == 0; i ++) {
+
+  public static double aumentar (double polinomio[], double c, double tolerancia) {
+    double error, piaprox;
+    do {
+      piaprox = falsaPosicion(polinomio, c, tolerancia);
+      error = Math.abs(((Math.PI - piaprox) / Math.PI) * 100);
+      System.out.println("Sumandos");
+      for (int i = 0; i < polinomio.length; i ++) {
+        System.out.println("\t" + polinomio[i] + "\tx^" + i);
+      }
+      System.out.println("Error para " + polinomio.length + " sumandos: " + error + "\n");
+      if (error >= tolerancia) {
+        polinomio = coefSen(polinomio.length + 1, c);
+      }
+    } while (error >= tolerancia);
+    return piaprox;
+  }
+
+  public static double falsaPosicion (double polinomio[], double c, double tolerancia) {
+    double f0, ff, fr = 0, xr = 0, x0 = 3, xf = 3.5, error, xra = 0;
+    do {
       xra = xr;
       f0 = horner(polinomio, x0, c);
       ff = horner(polinomio, xf, c);
       xr = xf - ((ff * (x0 - xf)) / (f0 - ff));
       fr = horner(polinomio, xr, c);
+      error = Math.abs( ( (xr - xra) / xr ) * 100 );
       if (fr * f0 < 0)
         xf = xr;
       else if (fr * f0 > 0)
         x0 = xr;
-      //String f = String.format("f0 = %.18f, ff = %.18f, fr = %.18f, xf = %.18f, x0 = %.18f, xr = %.18f", f0, ff, fr, xf, x0, xr);
-      System.out.println(String.format("xr = %.18f", xr));
-      System.out.println(String.format("xra = %.18f", xr));
-    }
+    } while(error >= tolerancia);
     return xr;
   }
 
@@ -82,16 +98,13 @@ public class Taylor {
     int sumandos = scan.nextInt();
     double[] coeficientes = coefSen(sumandos, c);
 
-    System.out.print("Valor de x0: ");
-    double x0 = scan.nextDouble();
+    System.out.print("Cifras significativas: ");
+    int cifras = scan.nextInt();
+    double tolerancia = 0.5 * Math.pow(10, (2-cifras));
 
-    System.out.print("Valor de xf: ");
-    double xf = scan.nextDouble();
-
-    /*System.out.print("Valor de la tolerancia: ");
-    double tolerancia = scan.nextDouble();*/
-
-    double resultado = falsaPosicion(coeficientes, x0, xf, c);
-    System.out.println(resultado);
+    System.out.println();
+    double resultado = aumentar(coeficientes, c, tolerancia);
+    System.out.println("Valor aprox. de PI: " + resultado);
+    System.out.println("Valor real de PI: " + Math.PI);
   }
 }
