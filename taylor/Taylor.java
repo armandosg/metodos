@@ -4,15 +4,6 @@ import java.math.BigDecimal;
 
 public class Taylor {
 
-  public static double getMachineEpsilon(double EPS) {
-    double prevEpsilon = 0.0;
-    while ((1 + EPS) != 1) {
-      prevEpsilon = EPS;
-      EPS /= 2;
-    }
-    return prevEpsilon;
-  }
-
   public static double factorial (double num) {
     double factorial = 1;
     for (double i = num; i > 1; i--) {
@@ -55,25 +46,25 @@ public class Taylor {
   }
 
 
-  public static double aumentar (double polinomio[], double c, double tolerancia) {
+  public static double aumentar (int numCoef, double c, double tolerancia) {
     double error, piaprox;
+    double[] polinomio;
     do {
+      polinomio = coefSen(numCoef, c);
       piaprox = falsaPosicion(polinomio, c, tolerancia);
       error = Math.abs(((Math.PI - piaprox) / Math.PI) * 100);
       System.out.println("Sumandos");
-      for (int i = 0; i < polinomio.length; i ++) {
+      for (int i = 0; i < polinomio.length; i ++)
         System.out.println("\t" + polinomio[i] + "\tx^" + i);
-      }
       System.out.println("Error para " + polinomio.length + " sumandos: " + error + "\n");
-      if (error >= tolerancia) {
-        polinomio = coefSen(polinomio.length + 1, c);
-      }
+      numCoef ++;
     } while (error >= tolerancia);
     return piaprox;
   }
 
   public static double falsaPosicion (double polinomio[], double c, double tolerancia) {
-    double f0, ff, fr = 0, xr = 0, x0 = 3, xf = 3.5, error, xra = 0;
+    double f0, ff, fr, error;
+    double x0 = 3, xf = 3.5, xr = 0, xra;
     do {
       xra = xr;
       f0 = horner(polinomio, x0, c);
@@ -96,15 +87,13 @@ public class Taylor {
 
     System.out.print("Sumandos de la serie: ");
     int sumandos = scan.nextInt();
-    double[] coeficientes = coefSen(sumandos, c);
 
     System.out.print("Cifras significativas: ");
     int cifras = scan.nextInt();
     double tolerancia = 0.5 * Math.pow(10, (2-cifras));
 
-    System.out.println();
-    double resultado = aumentar(coeficientes, c, tolerancia);
-    System.out.println("Valor aprox. de PI: " + resultado);
+    double resultado = aumentar(sumandos, c, tolerancia);
+    System.out.println("\nValor aprox. de PI: " + resultado);
     System.out.println("Valor real de PI: " + Math.PI);
   }
 }
