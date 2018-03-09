@@ -21,21 +21,26 @@ public class Taylor {
     return factoriales;
   }
 
-  public static ArrayList<Double> coefSen (int num, double c) {
+  public static ArrayList<Double> coefSen (int numCoef, double c) {
     ArrayList<Double> coeficientes = new ArrayList<Double>();
-    for (int i = 0; i < num; i++) {
-      switch ((i + 1) % 4) {
-        case 1: coeficientes.add(Math.sin(c)/factorial((double)i));
-          break;
-        case 2: coeficientes.add(Math.cos(c)/factorial((double)i));
-          break;
-        case 3: coeficientes.add((-1 * Math.sin(c))/factorial((double)i));
-          break;
-        case 0: coeficientes.add((-1 * Math.cos(c))/factorial((double)i));
-          break;
-      }
-    }
+    for (int k = 0; k < numCoef; k ++)
+      coeficientes.add(coefSenN(k, c));
     return coeficientes;
+  }
+
+  public static double coefSenN (int k, double c) {
+    double coef = 0;
+    switch ((k + 1) % 4) {
+      case 1: coef = Math.sin(c)/factorial((double)k);
+        break;
+      case 2: coef = Math.cos(c)/factorial((double)k);
+        break;
+      case 3: coef = (-1 * Math.sin(c))/factorial((double)k);
+        break;
+      case 0: coef = (-1 * Math.cos(c))/factorial((double)k);
+        break;
+    }
+    return coef;
   }
 
   public static double horner (ArrayList<Double> polinomio, double x, double c) {
@@ -78,17 +83,18 @@ public class Taylor {
     double tolerancia = 0.5 * Math.pow(10, (2-cifras));
 
     double error, piaprox;
-    ArrayList<Double> polinomio;
+    ArrayList<Double> polinomio = coefSen(sumandos, c);
+
     do {
-      polinomio = coefSen(sumandos, c);
-      piaprox = falsaPosicion(polinomio, c, tolerancia);
-      error = Math.abs(((Math.PI - piaprox) / Math.PI) * 100);
       System.out.println("Sumandos");
       for (int i = 0; i < polinomio.size(); i ++)
         System.out.println("\t" + polinomio.get(i) + "\tx^" + i);
+      piaprox = falsaPosicion(polinomio, c, tolerancia);
+      error = Math.abs(((Math.PI - piaprox) / Math.PI) * 100);
       System.out.println("Error para " + polinomio.size() + " sumandos: " + error + "\n");
-      sumandos ++;
+      polinomio.add(coefSenN(sumandos ++, c));
     } while (error >= tolerancia);
+    
     System.out.print("\t\t\t1 ");
     for (int i = 2; i <= 9; i ++) System.out.print(i);
     for (int i = 0; i <= 8; i ++) System.out.print(i);
