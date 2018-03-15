@@ -1,6 +1,7 @@
 import java.util.Random;
 import java.util.Scanner;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 public class Taylor {
 
@@ -20,32 +21,37 @@ public class Taylor {
     return factoriales;
   }
 
-  public static double[] coefSen (int num, double c) {
-    double coeficientes[] = new double[num];
-    for (int i = 0; i < num; i++) {
-      switch ((i + 1) % 4) {
-        case 1: coeficientes[i] = Math.sin(c)/factorial((double)i);
-          break;
-        case 2: coeficientes[i] = Math.cos(c)/factorial((double)i);
-          break;
-        case 3: coeficientes[i] = (-1 * Math.sin(c))/factorial((double)i);
-          break;
-        case 0: coeficientes[i] = (-1 * Math.cos(c))/factorial((double)i);
-          break;
-      }
-    }
+  public static ArrayList<Double> coefSen (int numCoef, double c) {
+    ArrayList<Double> coeficientes = new ArrayList<Double>();
+    for (int k = 0; k < numCoef; k ++)
+      coeficientes.add(coefSenN(k, c));
     return coeficientes;
   }
 
-  public static double horner (double polinomio[], double x, double c) {
-    int grado = polinomio.length - 1;
-    double suma = polinomio[grado];
+  public static double coefSenN (int k, double c) {
+    double coef = 0;
+    switch ((k + 1) % 4) {
+      case 1: coef = Math.sin(c)/factorial((double)k);
+        break;
+      case 2: coef = Math.cos(c)/factorial((double)k);
+        break;
+      case 3: coef = (-1 * Math.sin(c))/factorial((double)k);
+        break;
+      case 0: coef = (-1 * Math.cos(c))/factorial((double)k);
+        break;
+    }
+    return coef;
+  }
+
+  public static double horner (ArrayList<Double> polinomio, double x, double c) {
+    int grado = polinomio.size() - 1;
+    double suma = polinomio.get(grado);
     for (int i = grado - 1; i >= 0; i--)
-      suma = ((x - c) * suma) + polinomio[i];
+      suma = ((x - c) * suma) + polinomio.get(i);
     return suma;
   }
 
-  public static double falsaPosicion (double polinomio[], double c, double tolerancia) {
+  public static double falsaPosicion (ArrayList<Double> polinomio, double c, double tolerancia) {
     double f0, ff, fr, error;
     double x0 = 3, xf = 3.5, xr = 0, xra;
     do {
@@ -77,17 +83,18 @@ public class Taylor {
     double tolerancia = 0.5 * Math.pow(10, (2-cifras));
 
     double error, piaprox;
-    double[] polinomio;
+    ArrayList<Double> polinomio = coefSen(sumandos, c);
+
     do {
-      polinomio = coefSen(sumandos, c);
+      System.out.println("Sumandos");
+      for (int i = 0; i < polinomio.size(); i ++)
+        System.out.println("\t" + polinomio.get(i) + "\tx^" + i);
       piaprox = falsaPosicion(polinomio, c, tolerancia);
       error = Math.abs(((Math.PI - piaprox) / Math.PI) * 100);
-      System.out.println("Sumandos");
-      for (int i = 0; i < polinomio.length; i ++)
-        System.out.println("\t" + polinomio[i] + "\tx^" + i);
-      System.out.println("Error para " + polinomio.length + " sumandos: " + error + "\n");
-      sumandos ++;
+      System.out.println("Error para " + polinomio.size() + " sumandos: " + error + "\n");
+      polinomio.add(coefSenN(sumandos ++, c));
     } while (error >= tolerancia);
+    
     System.out.print("\t\t\t1 ");
     for (int i = 2; i <= 9; i ++) System.out.print(i);
     for (int i = 0; i <= 8; i ++) System.out.print(i);
